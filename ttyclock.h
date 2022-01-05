@@ -130,7 +130,7 @@ time_t timestamp(void);
 time_t rounded_timestamp(void);
 struct timespec sleep_length(void);
 struct timespec simple_sleep_length(void);
-bool one_second_delay(void);
+bool whole_seconds_delay(void);
 
 /* Global variable */
 ttyclock_t ttyclock;

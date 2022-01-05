@@ -688,7 +688,7 @@ main(int argc, char **argv)
 
 time_t timestamp(void)
 {
-     if (one_second_delay())
+     if (whole_seconds_delay())
      {
           return rounded_timestamp();
      }
@@ -723,7 +723,7 @@ struct timespec sleep_length(void)
      static const long SECOND_IN_NANOSECONDS = 1000 * 1000 * 1000;
      static const long NINE_TENTHS = 900 * 1000 * 1000;
 
-     if (one_second_delay())
+     if (whole_seconds_delay())
      {
           struct timespec currentTime;
 
@@ -756,9 +756,9 @@ struct timespec simple_sleep_length(void)
      return result;
 }
 
-bool one_second_delay(void)
+bool whole_seconds_delay(void)
 {
-     return ttyclock.option.delay == 1 &&
+     return ttyclock.option.delay >= 1 &&
           ttyclock.option.nsdelay == 0;
 }
 

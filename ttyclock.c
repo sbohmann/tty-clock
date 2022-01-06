@@ -83,7 +83,6 @@ init(void)
      sigaction(SIGSEGV,  &sig, NULL);
 
      /* Init global struct */
-     ttyclock.lt = time(NULL);
      ttyclock.running = true;
      if(!ttyclock.geo.x)
           ttyclock.geo.x = 0;
@@ -99,7 +98,7 @@ init(void)
      if(ttyclock.option.utc) {
           ttyclock.tm = gmtime(&(ttyclock.lt));
      }
-     ttyclock.lt = timestamp(false);
+     ttyclock.lt = timestamp();
      update_hour();
 
      /* Create clock win */
@@ -175,7 +174,13 @@ update_hour(void)
      int ihour;
      char tmpstr[128];
 
-    ttyclock.tm = localtime(&(ttyclock.lt));
+     time_t nextTimestamp = timestamp();
+     if (ttyclock.option.sound && nextTimestamp != ttyclock.lt) {
+          beep();
+     }
+     ttyclock.lt = nextTimestamp;
+
+     ttyclock.tm = localtime(&(ttyclock.lt));
      if(ttyclock.option.utc) {
           ttyclock.tm = gmtime(&(ttyclock.lt));
      }
@@ -256,7 +261,7 @@ draw_clock(void)
      draw_number(ttyclock.date.hour[0], 1, 1);
      draw_number(ttyclock.date.hour[1], 1, 8);
      chtype dotcolor = COLOR_PAIR(1);
-     if (ttyclock.option.blink && ttyclock.lt % 2 == 0)
+     if (ttyclock.option.blink && timestamp() % 2 == 0)
           dotcolor = COLOR_PAIR(2);
 
      /* 2 dot for number separation */
@@ -452,7 +457,6 @@ key_event(void)
           return;
      }
 
-     pselect(1, &rfds, NULL, NULL, &length, NULL);
 
      switch(c = wgetch(stdscr))
      {
@@ -545,6 +549,9 @@ key_event(void)
      case 'z':
      case 'Z':
          ttyclock.option.sound = ! ttyclock.option.sound;
+
+     default:
+          pselect(1, &rfds, NULL, NULL, &length, NULL);
      }
 
      return;
@@ -596,9 +603,8 @@ main(int argc, char **argv)
                       "    -h            Show this page                                 \n"
                       "    -D            Hide date                                      \n"
                       "    -B            Enable blinking colon                          \n"
-                      "    -d delay      Set the delay between two redraws of the clock. Default 1s.\n"
-                      "    -a nsdelay    Additional delay between two redraws in nanoseconds. Default 0ns.\n"
-                      "    -z            Enable sound at second change (for whole second intervals only)\n");
+                      "    -d delay      Set the delay between two redraws of the clock. Default 1s. \n"
+                      "    -a nsdelay    Additional delay between two redraws in nanoseconds. Default 0ns.\n");
                exit(EXIT_SUCCESS);
                break;
           case 'i':
@@ -686,7 +692,6 @@ main(int argc, char **argv)
           update_hour();
           draw_clock();
           key_event();
-          ttyclock.lt = timestamp();
      }
 
      endwin();
@@ -694,9 +699,9 @@ main(int argc, char **argv)
      return 0;
 }
 
-time_t timestamp(bool rounding_permitted)
+time_t timestamp(void)
 {
-     if (rounding_permitted && whole_seconds_delay())
+     if (whole_seconds_delay())
      {
           return rounded_timestamp();
      }

@@ -174,7 +174,12 @@ update_hour(void)
      int ihour;
      char tmpstr[128];
 
-     ttyclock.lt = timestamp();
+     time_t nextTimestamp = timestamp();
+     if (ttyclock.option.sound && nextTimestamp != ttyclock.lt) {
+          beep();
+     }
+     ttyclock.lt = nextTimestamp;
+
      ttyclock.tm = localtime(&(ttyclock.lt));
      if(ttyclock.option.utc) {
           ttyclock.tm = gmtime(&(ttyclock.lt));
@@ -541,6 +546,10 @@ key_event(void)
           init_pair(2, i, ttyclock.bg);
           break;
 
+     case 'z':
+     case 'Z':
+         ttyclock.option.sound = ! ttyclock.option.sound;
+
      default:
           pselect(1, &rfds, NULL, NULL, &length, NULL);
      }
@@ -566,10 +575,11 @@ main(int argc, char **argv)
      ttyclock.option.delay = 1; /* 1FPS */
      ttyclock.option.nsdelay = 0; /* -0FPS */
      ttyclock.option.blink = false;
+     ttyclock.option.sound = false;
 
      atexit(cleanup);
 
-     while ((c = getopt(argc, argv, "iuvsScbtrhBxnDC:f:d:T:a:")) != -1)
+     while ((c = getopt(argc, argv, "iuvsScbtrhBxnDzC:f:d:T:a:")) != -1)
      {
           switch(c)
           {
@@ -668,6 +678,9 @@ main(int argc, char **argv)
           case 'n':
                ttyclock.option.noquit = true;
                break;
+          case 'z':
+              ttyclock.option.sound = true;
+              break;
           }
      }
 

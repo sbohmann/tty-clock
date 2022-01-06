@@ -85,6 +85,7 @@ typedef struct
           long delay;
           bool blink;
           long nsdelay;
+          bool sound;
      } option;
 
      /* Clock geometry */

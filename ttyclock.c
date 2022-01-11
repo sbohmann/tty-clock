@@ -98,7 +98,7 @@ init(void)
      if(ttyclock.option.utc) {
           ttyclock.tm = gmtime(&(ttyclock.lt));
      }
-     ttyclock.lt = timestamp();
+     ttyclock.lt = timestamp(false);
      update_hour();
 
      /* Create clock win */
@@ -174,8 +174,9 @@ update_hour(void)
      int ihour;
      char tmpstr[128];
 
-     time_t nextTimestamp = timestamp();
-     if (ttyclock.option.sound && nextTimestamp != ttyclock.lt) {
+     // TODO only beep when displayed time changes - requires comparison of the string representations
+     time_t nextTimestamp = timestamp(true);
+     if (ttyclock.option.sound && whole_seconds_delay() && ttyclock.option.second && ttyclock.running && nextTimestamp != ttyclock.lt) {
           beep();
      }
      ttyclock.lt = nextTimestamp;
@@ -261,7 +262,7 @@ draw_clock(void)
      draw_number(ttyclock.date.hour[0], 1, 1);
      draw_number(ttyclock.date.hour[1], 1, 8);
      chtype dotcolor = COLOR_PAIR(1);
-     if (ttyclock.option.blink && timestamp() % 2 == 0)
+     if (ttyclock.option.blink && timestamp(true) % 2 == 0)
           dotcolor = COLOR_PAIR(2);
 
      /* 2 dot for number separation */
@@ -457,6 +458,7 @@ key_event(void)
           return;
      }
 
+     pselect(1, &rfds, NULL, NULL, &length, NULL);
 
      switch(c = wgetch(stdscr))
      {
@@ -549,9 +551,6 @@ key_event(void)
      case 'z':
      case 'Z':
          ttyclock.option.sound = ! ttyclock.option.sound;
-
-     default:
-          pselect(1, &rfds, NULL, NULL, &length, NULL);
      }
 
      return;
@@ -699,9 +698,9 @@ main(int argc, char **argv)
      return 0;
 }
 
-time_t timestamp(void)
+time_t timestamp(bool rounding_permitted)
 {
-     if (whole_seconds_delay())
+     if (rounding_permitted && whole_seconds_delay())
      {
           return rounded_timestamp();
      }

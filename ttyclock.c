@@ -98,7 +98,7 @@ init(void)
      if(ttyclock.option.utc) {
           ttyclock.tm = gmtime(&(ttyclock.lt));
      }
-     ttyclock.lt = timestamp(false);
+     ttyclock.lt = timestamp();
      update_hour();
 
      /* Create clock win */
@@ -174,7 +174,7 @@ update_hour(void)
      int ihour;
      char tmpstr[128];
 
-     ttyclock.lt = timestamp(true);
+     ttyclock.lt = timestamp();
      ttyclock.tm = localtime(&(ttyclock.lt));
      if(ttyclock.option.utc) {
           ttyclock.tm = gmtime(&(ttyclock.lt));
@@ -256,7 +256,7 @@ draw_clock(void)
      draw_number(ttyclock.date.hour[0], 1, 1);
      draw_number(ttyclock.date.hour[1], 1, 8);
      chtype dotcolor = COLOR_PAIR(1);
-     if (ttyclock.option.blink && timestamp(true) % 2 == 0)
+     if (ttyclock.option.blink && timestamp() % 2 == 0)
           dotcolor = COLOR_PAIR(2);
 
      /* 2 dot for number separation */
@@ -441,6 +441,7 @@ key_event(void)
           else
           {
                nanosleep(&length, NULL);
+               ttyclock.rounding_permitted = true;
                for(i = 0; i < 8; ++i)
                     if(c == (i + '0'))
                     {
@@ -567,6 +568,8 @@ main(int argc, char **argv)
      ttyclock.option.nsdelay = 0; /* -0FPS */
      ttyclock.option.blink = false;
 
+     ttyclock.rounding_permitted = false;
+
      atexit(cleanup);
 
      while ((c = getopt(argc, argv, "iuvsScbtrhBxnDC:f:d:T:a:")) != -1)
@@ -686,9 +689,9 @@ main(int argc, char **argv)
      return 0;
 }
 
-time_t timestamp(bool rounding_permitted)
+time_t timestamp(void)
 {
-     if (rounding_permitted && whole_seconds_delay())
+     if (ttyclock.rounding_permitted && whole_seconds_delay())
      {
           return rounded_timestamp();
      }

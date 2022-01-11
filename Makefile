@@ -2,7 +2,7 @@
 #Under BSD License
 #See clock.c for the license detail.
 
-SRC = ttyclock.c ttyclock.h
+SRC = ttyclock.c
 CC ?= gcc
 BIN ?= tty-clock
 PREFIX ?= /usr/local

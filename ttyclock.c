@@ -83,6 +83,7 @@ init(void)
      sigaction(SIGSEGV,  &sig, NULL);
 
      /* Init global struct */
+     ttyclock.lt = time(NULL);
      ttyclock.running = true;
      if(!ttyclock.geo.x)
           ttyclock.geo.x = 0;
@@ -173,14 +174,7 @@ update_hour(void)
      int ihour;
      char tmpstr[128];
 
-     // TODO only beep when displayed time changes - requires comparison of the string representations
-     time_t nextTimestamp = timestamp(true);
-     if (ttyclock.option.sound && whole_seconds_delay() && ttyclock.option.second && ttyclock.running && nextTimestamp != ttyclock.lt) {
-          beep();
-     }
-     ttyclock.lt = nextTimestamp;
-
-     ttyclock.tm = localtime(&(ttyclock.lt));
+    ttyclock.tm = localtime(&(ttyclock.lt));
      if(ttyclock.option.utc) {
           ttyclock.tm = gmtime(&(ttyclock.lt));
      }
@@ -261,7 +255,7 @@ draw_clock(void)
      draw_number(ttyclock.date.hour[0], 1, 1);
      draw_number(ttyclock.date.hour[1], 1, 8);
      chtype dotcolor = COLOR_PAIR(1);
-     if (ttyclock.option.blink && timestamp(true) % 2 == 0)
+     if (ttyclock.option.blink && ttyclock.lt % 2 == 0)
           dotcolor = COLOR_PAIR(2);
 
      /* 2 dot for number separation */
@@ -691,6 +685,7 @@ main(int argc, char **argv)
           update_hour();
           draw_clock();
           key_event();
+          ttyclock.lt = timestamp();
      }
 
      endwin();

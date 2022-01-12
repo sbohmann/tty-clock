@@ -99,7 +99,6 @@ init(void)
      if(ttyclock.option.utc) {
           ttyclock.tm = gmtime(&(ttyclock.lt));
      }
-     ttyclock.lt = timestamp(false);
      update_hour();
 
      /* Create clock win */
@@ -699,9 +698,9 @@ main(int argc, char **argv)
      return 0;
 }
 
-time_t timestamp(bool rounding_permitted)
+time_t timestamp(void)
 {
-     if (rounding_permitted && whole_seconds_delay())
+     if (whole_seconds_delay())
      {
           return rounded_timestamp();
      }

@@ -685,7 +685,12 @@ main(int argc, char **argv)
           update_hour();
           draw_clock();
           key_event();
-          ttyclock.lt = timestamp();
+         // TODO only beep when displayed time changes - requires comparison of the string representations
+         time_t nextTimestamp = timestamp();
+         if (ttyclock.option.sound && whole_seconds_delay() && ttyclock.option.second && ttyclock.running && nextTimestamp != ttyclock.lt) {
+             beep();
+         }
+         ttyclock.lt = nextTimestamp;
      }
 
      endwin();

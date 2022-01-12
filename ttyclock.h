@@ -113,8 +113,6 @@ typedef struct
      char *meridiem;
      WINDOW *framewin;
      WINDOW *datewin;
-
-     bool rounding_permitted;
 } ttyclock_t;
 
 /* Prototypes */

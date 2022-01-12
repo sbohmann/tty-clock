@@ -83,6 +83,7 @@ init(void)
      sigaction(SIGSEGV,  &sig, NULL);
 
      /* Init global struct */
+     ttyclock.lt = time(NULL);
      ttyclock.running = true;
      if(!ttyclock.geo.x)
           ttyclock.geo.x = 0;
@@ -98,7 +99,6 @@ init(void)
      if(ttyclock.option.utc) {
           ttyclock.tm = gmtime(&(ttyclock.lt));
      }
-     ttyclock.lt = timestamp();
      update_hour();
 
      /* Create clock win */
@@ -174,8 +174,7 @@ update_hour(void)
      int ihour;
      char tmpstr[128];
 
-     ttyclock.lt = timestamp();
-     ttyclock.tm = localtime(&(ttyclock.lt));
+    ttyclock.tm = localtime(&(ttyclock.lt));
      if(ttyclock.option.utc) {
           ttyclock.tm = gmtime(&(ttyclock.lt));
      }
@@ -441,7 +440,6 @@ key_event(void)
           else
           {
                nanosleep(&length, NULL);
-               ttyclock.rounding_permitted = true;
                for(i = 0; i < 8; ++i)
                     if(c == (i + '0'))
                     {
@@ -452,7 +450,6 @@ key_event(void)
           }
           return;
      }
-
 
      switch(c = wgetch(stdscr))
      {
@@ -568,8 +565,6 @@ main(int argc, char **argv)
      ttyclock.option.nsdelay = 0; /* -0FPS */
      ttyclock.option.blink = false;
 
-     ttyclock.rounding_permitted = false;
-
      atexit(cleanup);
 
      while ((c = getopt(argc, argv, "iuvsScbtrhBxnDC:f:d:T:a:")) != -1)
@@ -682,6 +677,7 @@ main(int argc, char **argv)
           update_hour();
           draw_clock();
           key_event();
+          ttyclock.lt = timestamp();
      }
 
      endwin();
@@ -691,7 +687,7 @@ main(int argc, char **argv)
 
 time_t timestamp(void)
 {
-     if (ttyclock.rounding_permitted && whole_seconds_delay())
+     if (whole_seconds_delay())
      {
           return rounded_timestamp();
      }

@@ -595,8 +595,9 @@ main(int argc, char **argv)
                       "    -h            Show this page                                 \n"
                       "    -D            Hide date                                      \n"
                       "    -B            Enable blinking colon                          \n"
-                      "    -d delay      Set the delay between two redraws of the clock. Default 1s. \n"
-                      "    -a nsdelay    Additional delay between two redraws in nanoseconds. Default 0ns.\n");
+                      "    -d delay      Set the delay between two redraws of the clock. Default 1s.\n"
+                      "    -a nsdelay    Additional delay between two redraws in nanoseconds. Default 0ns.\n"
+                      "    -z            Enable sound at second change (for whole second intervals only)\n");
                exit(EXIT_SUCCESS);
                break;
           case 'i':
